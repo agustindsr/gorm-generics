@@ -1,22 +1,20 @@
 package user
 
 import (
-	"gorm-with-generics/pkg/common"
 	"gorm-with-generics/pkg/models"
-	"gorm-with-generics/pkg/repository/gorm"
-	"gorm-with-generics/pkg/repository/users"
+	ruser "gorm-with-generics/pkg/repository/users"
 )
 
 type Service interface {
 	CreateUser(user *models.User) error
-	SearchUsers(options common.SearchOptions[models.User]) ([]models.User, error)
+	SearchUsersByFirstName(firstName string) ([]models.User, error)
 }
 
 type service struct {
-	userRepository gorm.Repository[models.User]
+	userRepository ruser.Repository
 }
 
-func NewService(userRepository users.Repository) Service {
+func NewService(userRepository ruser.Repository) Service {
 	return service{userRepository}
 }
 
@@ -24,6 +22,6 @@ func (s service) CreateUser(user *models.User) error {
 	return s.userRepository.Create(user)
 }
 
-func (s service) SearchUsers(options common.SearchOptions[models.User]) ([]models.User, error) {
-	return s.userRepository.Search(options)
+func (s service) SearchUsersByFirstName(firstName string) ([]models.User, error) {
+	return s.userRepository.Search(nil, ruser.WithFirstName(firstName))
 }

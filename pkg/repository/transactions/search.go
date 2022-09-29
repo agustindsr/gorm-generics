@@ -3,26 +3,25 @@ package transactions
 import (
 	"gorm-with-generics/pkg/common"
 	"gorm-with-generics/pkg/models"
+	rmodels "gorm-with-generics/pkg/repository/transactions/models"
 )
 
-func (r repository) Search(options common.SearchOptions[models.TransactionLedger]) ([]models.TransactionLedger, error) {
-	searchOptionsDAO := common.SearchOptions[transactionDAO]{
-		Pagination: options.Pagination,
-	}
-
-	if options.Filters != nil {
-		searchOptionsDAO.Filters = toDAO(*options.Filters)
-	}
-
-	results, err := r.gormRepo.Search(searchOptionsDAO)
+func (r repository) Search(pagination *common.PaginationOptions, filters ...common.FilterOptions[rmodels.DAO]) ([]models.TransactionLedger, error) {
+	results, err := r.gormRepo.Search(pagination, filters...)
 	if err != nil {
 		return nil, err
 	}
 
 	var trasactions []models.TransactionLedger
 	for _, dao := range results {
-		trasactions = append(trasactions, toModel(dao))
+		trasactions = append(trasactions, rmodels.ToModel(dao))
 	}
 
 	return trasactions, nil
+}
+
+func WithAmount(amount int64) common.FilterOptions[rmodels.DAO] {
+	return func(dao *rmodels.DAO) {
+		dao.Amount = amount
+	}
 }

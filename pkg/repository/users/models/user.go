@@ -1,14 +1,14 @@
-package users
+package models
 
 import "gorm-with-generics/pkg/models"
 
-type userDAO struct {
+type DAO struct {
 	Id        int    `gorm:"primaryKey"`
 	FirstName string `gorm:"column:first_name"`
 	LastName  string `gorm:"column:last_name"`
 }
 
-func toModel(dao userDAO) models.User {
+func ToModel(dao DAO) models.User {
 	return models.User{
 		Id:        dao.Id,
 		FirstName: dao.FirstName,
@@ -16,8 +16,8 @@ func toModel(dao userDAO) models.User {
 	}
 }
 
-func toDAO(model models.User) *userDAO {
-	return &userDAO{
+func ToDAO(model models.User) DAO {
+	return DAO{
 		Id:        model.Id,
 		FirstName: model.FirstName,
 		LastName:  model.LastName,
@@ -25,6 +25,6 @@ func toDAO(model models.User) *userDAO {
 }
 
 // TableName overrides the table name used by User to `profiles`
-func (userDAO) TableName() string {
+func (DAO) TableName() string {
 	return "users"
 }

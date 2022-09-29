@@ -1,13 +1,13 @@
-package transaction
+package transactions
 
 import (
 	"encoding/json"
 	"fmt"
-	"gorm-with-generics/pkg/common"
 	"gorm-with-generics/pkg/models"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func (h handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
@@ -33,18 +33,13 @@ func (h handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) SearchTransaction(w http.ResponseWriter, r *http.Request) {
-	// Read to request body
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-
+	amountStr := r.URL.Query().Get("amount")
+	amount, err := strconv.ParseInt(amountStr, 10, 64)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
 	}
 
-	var searchOptions common.SearchOptions[models.TransactionLedger]
-	json.Unmarshal(body, &searchOptions)
-
-	resp, err := h.Service.SearchTransaction(searchOptions)
+	resp, err := h.Service.SearchTransactionByAmount(amount)
 	if err != nil {
 		fmt.Println(err)
 	}

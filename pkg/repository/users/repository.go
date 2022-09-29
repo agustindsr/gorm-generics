@@ -5,6 +5,7 @@ import (
 	"gorm-with-generics/pkg/common"
 	"gorm-with-generics/pkg/models"
 	rgorm "gorm-with-generics/pkg/repository/gorm"
+	rmodel "gorm-with-generics/pkg/repository/users/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -13,11 +14,11 @@ import (
 
 type Repository interface {
 	Create(user *models.User) error
-	Search(options common.SearchOptions[models.User]) ([]models.User, error)
+	Search(pagination *common.PaginationOptions, filters ...common.FilterOptions[rmodel.DAO]) ([]models.User, error)
 }
 
 type repository struct {
-	gormRepo rgorm.Repository[userDAO]
+	gormRepo rgorm.Repository[rmodel.DAO]
 }
 
 func NewRepository() Repository {
@@ -34,9 +35,9 @@ func NewRepository() Repository {
 		log.Fatalln(err)
 	}
 
-	db.AutoMigrate(&userDAO{})
+	db.AutoMigrate(&rmodel.DAO{})
 
 	return repository{
-		gormRepo: rgorm.NewRepository[userDAO](db),
+		gormRepo: rgorm.NewRepository[rmodel.DAO](db),
 	}
 }

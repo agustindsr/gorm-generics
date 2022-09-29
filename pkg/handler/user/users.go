@@ -3,7 +3,6 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"gorm-with-generics/pkg/common"
 	"gorm-with-generics/pkg/models"
 	"io/ioutil"
 	"log"
@@ -32,25 +31,15 @@ func (h handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Created")
 }
 
-func (h handler) SearchUser(w http.ResponseWriter, r *http.Request) {
-	// Read to request body
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
+func (h handler) SearchUsersByFirstName(w http.ResponseWriter, r *http.Request) {
+	firstName := r.URL.Query().Get("firstName")
 
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	var searchOptions common.SearchOptions[models.User]
-	json.Unmarshal(body, &searchOptions)
-
-	resp, err := h.Service.SearchUsers(searchOptions)
+	resp, err := h.Service.SearchUsersByFirstName(firstName)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// Send a 201 created response
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(resp)
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"gorm-with-generics/pkg/handler/transaction"
+	"gorm-with-generics/pkg/handler/transactions"
 	"gorm-with-generics/pkg/handler/user"
 	"log"
 	"net/http"
@@ -10,12 +10,12 @@ import (
 
 func main() {
 	userHandler := user.New()
-	transactionHandler := transaction.New()
+	transactionHandler := transactions.New()
 
 	router := mux.NewRouter()
 
 	router.HandleFunc("/users", userHandler.CreateUser).Methods(http.MethodPost)
-	router.HandleFunc("/users", userHandler.SearchUser).Methods(http.MethodGet)
+	router.HandleFunc("/users", userHandler.SearchUsersByFirstName).Methods(http.MethodGet)
 
 	router.HandleFunc("/transactions", transactionHandler.CreateTransaction).Methods(http.MethodPost)
 	router.HandleFunc("/transactions", transactionHandler.SearchTransaction).Methods(http.MethodGet)

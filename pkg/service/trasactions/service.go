@@ -1,19 +1,17 @@
 package transactions
 
 import (
-	"gorm-with-generics/pkg/common"
 	"gorm-with-generics/pkg/models"
-	"gorm-with-generics/pkg/repository/gorm"
 	"gorm-with-generics/pkg/repository/transactions"
 )
 
 type Service interface {
 	CreateTransaction(user *models.TransactionLedger) error
-	SearchTransaction(options common.SearchOptions[models.TransactionLedger]) ([]models.TransactionLedger, error)
+	SearchTransactionByAmount(amount int64) ([]models.TransactionLedger, error)
 }
 
 type service struct {
-	transactionsRepository gorm.Repository[models.TransactionLedger]
+	transactionsRepository transactions.Repository
 }
 
 func NewService(transactionsRepository transactions.Repository) Service {
@@ -24,6 +22,6 @@ func (s service) CreateTransaction(user *models.TransactionLedger) error {
 	return s.transactionsRepository.Create(user)
 }
 
-func (s service) SearchTransaction(options common.SearchOptions[models.TransactionLedger]) ([]models.TransactionLedger, error) {
-	return s.transactionsRepository.Search(options)
+func (s service) SearchTransactionByAmount(amount int64) ([]models.TransactionLedger, error) {
+	return s.transactionsRepository.Search(nil, transactions.WithAmount(amount))
 }

@@ -6,8 +6,9 @@ import (
 )
 
 type Repository[T any] interface {
-	Create(entity *T) error
-	Search(options common.SearchOptions[T]) ([]T, error)
+	Create(entity T) error
+	Search(pagination *common.PaginationOptions, filters ...common.FilterOptions[T]) ([]T, error)
+	FindOne(filters ...common.FilterOptions[T]) (*T, error)
 }
 
 type repository[T any] struct {

@@ -6,27 +6,27 @@ import (
 )
 
 type DAO struct {
-	ID                  string                `gorm:"column:id"`
-	WalletID            string                `gorm:"column:wallet_id"`
-	UserID              string                `gorm:"column:user_id"`
-	DeviceID            string                `gorm:"column:device_id"`
-	Amount              int64                 `gorm:"column:amount"`
-	Currency            string                `gorm:"column:currency"`
-	Type                string                `gorm:"column:type"`
-	Kind                string                `gorm:"column:kind"`
-	IsReverse           bool                  `gorm:"column:is_reverse"`
-	ReverseReason       string                `gorm:"column:reverse_reason"`
-	OriginalReferenceID string                `gorm:"column:original_reference_id"`
-	Status              string                `gorm:"column:status"`
-	Provider            string                `gorm:"column:provider"`
-	OriginalPrice       int64                 `gorm:"column:original_price"`
-	OriginalCredits     int64                 `gorm:"column:original_credits"`
-	Metadata            MetadataDAO           `gorm:"embedded;embeddedPrefix:metadata_"`
-	CreatedAt           time.Time             `gorm:"column:createdAt"`
-	UpdatedAt           time.Time             `gorm:"column:updatedAt"`
-	PackageApplication  PackageApplicationDAO `gorm:"foreignKey:TransactionID"`
-	CouponApplication   CouponApplicationDAO  `gorm:"foreignKey:TransactionID"`
-	BalanceApplication  BalanceApplicationDAO `gorm:"foreignKey:TransactionID"`
+	ID                  string                 `gorm:"column:id"`
+	WalletID            string                 `gorm:"column:wallet_id"`
+	UserID              string                 `gorm:"column:user_id"`
+	DeviceID            string                 `gorm:"column:device_id"`
+	Amount              int64                  `gorm:"column:amount"`
+	Currency            string                 `gorm:"column:currency"`
+	Type                string                 `gorm:"column:type"`
+	Kind                string                 `gorm:"column:kind"`
+	IsReverse           bool                   `gorm:"column:is_reverse"`
+	ReverseReason       string                 `gorm:"column:reverse_reason"`
+	OriginalReferenceID string                 `gorm:"column:original_reference_id"`
+	Status              string                 `gorm:"column:status"`
+	Provider            string                 `gorm:"column:provider"`
+	OriginalPrice       int64                  `gorm:"column:original_price"`
+	OriginalCredits     int64                  `gorm:"column:original_credits"`
+	Metadata            MetadataDAO            `gorm:"embedded;embeddedPrefix:metadata_"`
+	CreatedAt           time.Time              `gorm:"column:createdAt"`
+	UpdatedAt           time.Time              `gorm:"column:updatedAt"`
+	PackageApplication  *PackageApplicationDAO `gorm:"foreignKey:TransactionID"`
+	CouponApplication   *CouponApplicationDAO  `gorm:"foreignKey:TransactionID"`
+	BalanceApplication  *BalanceApplicationDAO `gorm:"foreignKey:TransactionID"`
 }
 
 type MetadataDAO struct {
@@ -95,8 +95,8 @@ func ToModel(d DAO) models.TransactionLedger {
 
 func toMetadata(d DAO) models.TransactionLedgerMetadata {
 	return models.TransactionLedgerMetadata{
-		Package:                   toPackageModel(d.PackageApplication),
-		Coupon:                    toCouponModel(d.CouponApplication),
+		Package:                   toPackageModel(*d.PackageApplication),
+		Coupon:                    toCouponModel(*d.CouponApplication),
 		Token:                     d.Metadata.Token,
 		DeviceID:                  d.DeviceID,
 		OriginalPrice:             d.OriginalPrice,
@@ -132,6 +132,6 @@ func ToModels(dao []DAO) []models.TransactionLedger {
 	return transactions
 }
 
-func (d DAO) Table() string {
+func (d DAO) TableName() string {
 	return "transaction_ledger"
 }

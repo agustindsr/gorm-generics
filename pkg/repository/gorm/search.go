@@ -5,10 +5,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r repository[T]) Search(options common.SearchOptions[T]) ([]T, error) {
+func (r repository[T]) Search(pagination *common.PaginationOptions, filters ...common.FilterOptions[T]) ([]T, error) {
 	results := new([]T)
 
-	r.GormDB = buildSearchOptions[T](r.GormDB, options)
+	r.GormDB = buildFilters[T](r.GormDB, filters...)
+	r.GormDB = buildPagination(r.GormDB, pagination)
 
 	if resp := r.GormDB.Find(results); resp.Error != nil {
 		return nil, resp.Error
@@ -17,22 +18,24 @@ func (r repository[T]) Search(options common.SearchOptions[T]) ([]T, error) {
 	return *results, nil
 }
 
-func buildSearchOptions[T any](db *gorm.DB, options common.SearchOptions[T]) *gorm.DB {
-	if options.Filters != nil {
-		db = buildFilter(db, options.Filters)
+func buildPagination(db *gorm.DB, paginationOptions *common.PaginationOptions) *gorm.DB {
+	if paginationOptions == nil {
+		return db.Limit(common.DefaultLimit)
 	}
 
-	if options.Pagination != nil {
-		db = buildPagination(db, options.Pagination)
+	if paginationOptions.Limit != nil {
+		db = db.Limit(*paginationOptions.Limit)
 	}
-
+	if paginationOptions.Offset != nil {
+		db = db.Offset(*paginationOptions.Offset)
+	}
 	return db
 }
 
-func buildPagination(db *gorm.DB, paginationOptions *common.PaginationOptions) *gorm.DB {
-	return db.Offset(paginationOptions.Offset).Limit(paginationOptions.Limit)
-}
-
-func buildFilter[T any](db *gorm.DB, filterObject T) *gorm.DB {
-	return db.Where(filterObject)
+func buildFilters[T any](db *gorm.DB, filterOptions ...common.FilterOptions[T]) *gorm.DB {
+	var filter T
+	for _, opt := range filterOptions {
+		opt(&filter)
+	}
+	return db.Where(filter)
 }

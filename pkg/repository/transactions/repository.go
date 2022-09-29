@@ -5,6 +5,7 @@ import (
 	"gorm-with-generics/pkg/common"
 	"gorm-with-generics/pkg/models"
 	rgorm "gorm-with-generics/pkg/repository/gorm"
+	rmodels "gorm-with-generics/pkg/repository/transactions/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -13,11 +14,11 @@ import (
 
 type Repository interface {
 	Create(user *models.TransactionLedger) error
-	Search(options common.SearchOptions[models.TransactionLedger]) ([]models.TransactionLedger, error)
+	Search(pagination *common.PaginationOptions, filters ...common.FilterOptions[rmodels.DAO]) ([]models.TransactionLedger, error)
 }
 
 type repository struct {
-	gormRepo rgorm.Repository[transactionDAO]
+	gormRepo rgorm.Repository[rmodels.DAO]
 }
 
 func NewRepository() Repository {
@@ -34,10 +35,12 @@ func NewRepository() Repository {
 		log.Fatalln(err)
 	}
 
-	db.AutoMigrate(&transactionDAO{})
-	db.AutoMigrate(&PaymentPackageDAO{})
+	db.AutoMigrate(&rmodels.DAO{})
+	db.AutoMigrate(&rmodels.PackageApplicationDAO{})
+	db.AutoMigrate(&rmodels.CouponApplicationDAO{})
+	db.AutoMigrate(&rmodels.BalanceApplicationDAO{})
 
 	return repository{
-		gormRepo: rgorm.NewRepository[transactionDAO](db),
+		gormRepo: rgorm.NewRepository[rmodels.DAO](db),
 	}
 }

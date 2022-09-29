@@ -1,4 +1,4 @@
-package transaction
+package transactions
 
 import (
 	rtransaction "gorm-with-generics/pkg/repository/transactions"
